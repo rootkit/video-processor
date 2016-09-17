@@ -59,10 +59,12 @@ void Worker::_processTask(const Task& task)
     auto outputDir = mkTempDir("tvar-data");
     auto videoPath = outputDir + "/video.mp4";
     auto imagePath = outputDir + "/image.jpg";
+    auto noAudioOutputPath = outputDir + "/output-no-audio.mp4";
     auto outputPath = outputDir + "/output.mp4";
     auto thumbnailPath = outputDir + "/thumbnail.jpg";
     auto outputKey = "/processed/" + std::to_string(task.videoID) + "/video.mp4";
     auto thumbnailKey = "/processed/" + std::to_string(task.videoID) + "/thumbnail.jpg";
+
 
     _s3Client->downloadFile(task.s3VideoKey, videoPath);
     _s3Client->downloadFile(task.s3ImageKey, imagePath);
@@ -70,7 +72,17 @@ void Worker::_processTask(const Task& task)
     LOG(INFO) << "downloaded: " << task.s3VideoKey << " and " << task.s3ImageKey;
 
     VideoProcessor processor;
-    processor.processVideo(videoPath, imagePath, outputPath, thumbnailPath);
+    processor.processVideo(videoPath, imagePath, noAudioOutputPath, thumbnailPath);
+
+    std::ostringstream command;
+    command << "ffmpeg -i "
+            << noAudioOutputPath
+            << " -i "
+            << videoPath
+            << " -c:v copy -c:a aac -strict experimental -shortest "
+            << outputPath;
+    system((char*)command.str().c_str());
+
     LOG(INFO) << "process done, uploading to " << outputKey << "and " << thumbnailKey;
     _s3Client->uploadFile(outputPath, outputKey);
     _s3Client->uploadFile(thumbnailPath, thumbnailKey);
