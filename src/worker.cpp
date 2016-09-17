@@ -60,6 +60,7 @@ void Worker::_processTask(const Task& task)
     auto videoPath = outputDir + "/video.mp4";
     auto imagePath = outputDir + "/image.jpg";
     auto outputPath = outputDir + "/output.mp4";
+    auto thumbnailPath = outputDir + "/thumbnail.jpg";
     auto outputKey = "/processed/" + std::to_string(task.videoID) + "/video.mp4";
     auto thumbnailKey = "/processed/" + std::to_string(task.videoID) + "/thumbnail.jpg";
 
@@ -69,9 +70,10 @@ void Worker::_processTask(const Task& task)
     LOG(INFO) << "downloaded: " << task.s3VideoKey << " and " << task.s3ImageKey;
 
     VideoProcessor processor;
-    processor.processVideo(videoPath, imagePath, outputPath);
-    LOG(INFO) << "process done, uploading to " << outputKey;
+    processor.processVideo(videoPath, imagePath, outputPath, thumbnailPath);
+    LOG(INFO) << "process done, uploading to " << outputKey << "and " << thumbnailKey;
     _s3Client->uploadFile(outputPath, outputKey);
+    _s3Client->uploadFile(thumbnailPath, thumbnailKey);
 
     auto url = kAPIBasePath + std::to_string(task.videoID);
     json j = {{"swapped_uid", outputKey}, {"thumbnail_uid", thumbnailKey}};

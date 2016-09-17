@@ -8,7 +8,7 @@ class VideoProcessor
 public:
     VideoProcessor();
     ~VideoProcessor();
-    void processVideo(std::string videoPath, std::string imagePath, std::string outputPath);
+    void processVideo(std::string videoPath, std::string imagePath, std::string outputPath, std::string thumbnailPath);
 
 private:
     FaceDetectorAndTracker* _detector;

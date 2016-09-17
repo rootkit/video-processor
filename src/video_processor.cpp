@@ -25,7 +25,7 @@ VideoProcessor::~VideoProcessor()
     delete _swapper;
 }
 
-void VideoProcessor::processVideo(std::string videoPath, std::string imagePath, std::string outputPath)
+void VideoProcessor::processVideo(std::string videoPath, std::string imagePath, std::string outputPath, std::string thumbnailPath)
 {
     cv::VideoCapture* videoInput;
     if (videoPath == "camera") {
@@ -49,14 +49,22 @@ void VideoProcessor::processVideo(std::string videoPath, std::string imagePath, 
 
     outputVideo.open(outputPath, kFourcc, (int)videoInput->get(cv::CAP_PROP_FPS), size);
 
+    int currentIndex = 0;
+
     while (true) {
         // Grab a frame
         cv::Mat frame;
         *_detector >> frame;
+
+
         if (frame.empty()) {
             break;
         }
         _detector->processFrame(frame);
+
+        if (currentIndex == 1 || currentIndex == 100) {
+            imwrite(thumbnailPath, frame);
+        }
 
         std::vector<cv::Rect> faces = _detector->faces();
         if (faces.size() > 0) {
@@ -64,6 +72,8 @@ void VideoProcessor::processVideo(std::string videoPath, std::string imagePath, 
         }
 
         outputVideo << frame;
+
+        currentIndex++;
         // // Display it all on the screen
         // cv::imshow("Face Swap", frame);
         // if (cv::waitKey(1) == 27) return;
