@@ -1,14 +1,17 @@
+#pragma once
+
 #include <string>
 
 #include "face_detector.hpp"
 #include "face_swapper.hpp"
+#include "task.hpp"
 
 class VideoProcessor
 {
 public:
     VideoProcessor();
     ~VideoProcessor();
-    void processVideo(std::string videoPath, std::string imagePath, std::string outputPath, std::string thumbnailPath);
+    void processVideo(const Task& task);
 
 private:
     FaceDetectorAndTracker* _detector;

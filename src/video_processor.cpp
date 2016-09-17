@@ -25,17 +25,17 @@ VideoProcessor::~VideoProcessor()
     delete _swapper;
 }
 
-void VideoProcessor::processVideo(std::string videoPath, std::string imagePath, std::string outputPath, std::string thumbnailPath)
+void VideoProcessor::processVideo(const Task& task)
 {
     cv::VideoCapture* videoInput;
-    if (videoPath == "camera") {
+    if (task.videoPath == "camera") {
         videoInput = new cv::VideoCapture(0);
     } else {
-        videoInput = new cv::VideoCapture(videoPath);
+        videoInput = new cv::VideoCapture(task.videoPath);
     }
     _detector->setInput(videoInput);
 
-    auto inputImage = cv::imread(imagePath);
+    auto inputImage = cv::imread(task.imagePath);
     cv::Mat scaledInputImage;
     cv::resize(inputImage, scaledInputImage, _detector->originalFrameSize());
 
@@ -47,7 +47,7 @@ void VideoProcessor::processVideo(std::string videoPath, std::string imagePath, 
     auto size = cv::Size((int)videoInput->get(cv::CAP_PROP_FRAME_WIDTH),
                          (int)videoInput->get(cv::CAP_PROP_FRAME_HEIGHT));
 
-    outputVideo.open(outputPath, kFourcc, (int)videoInput->get(cv::CAP_PROP_FPS), size);
+    outputVideo.open(task.noAudioOutputPath, kFourcc, (int)videoInput->get(cv::CAP_PROP_FPS), size);
 
     int currentIndex = 0;
 
@@ -56,14 +56,13 @@ void VideoProcessor::processVideo(std::string videoPath, std::string imagePath, 
         cv::Mat frame;
         *_detector >> frame;
 
-
         if (frame.empty()) {
             break;
         }
         _detector->processFrame(frame);
 
         if (currentIndex == 1 || currentIndex == 100) {
-            imwrite(thumbnailPath, frame);
+            imwrite(task.thumbnailPath, frame);
         }
 
         std::vector<cv::Rect> faces = _detector->faces();

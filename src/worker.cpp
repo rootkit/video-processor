@@ -52,43 +52,36 @@ void Worker::work()
     }
 }
 
-void Worker::_processTask(const Task& task)
+void Worker::_processTask(Task& task)
 {
     auto timeStart = cv::getTickCount();
 
     auto outputDir = mkTempDir("tvar-data");
-    auto videoPath = outputDir + "/video.mp4";
-    auto imagePath = outputDir + "/image.jpg";
-    auto noAudioOutputPath = outputDir + "/output-no-audio.mp4";
-    auto outputPath = outputDir + "/output.mp4";
-    auto thumbnailPath = outputDir + "/thumbnail.jpg";
-    auto outputKey = "/processed/" + std::to_string(task.videoID) + "/video.mp4";
-    auto thumbnailKey = "/processed/" + std::to_string(task.videoID) + "/thumbnail.jpg";
+    task.setDirectory(outputDir);
 
-
-    _s3Client->downloadFile(task.s3VideoKey, videoPath);
-    _s3Client->downloadFile(task.s3ImageKey, imagePath);
+    _s3Client->downloadFile(task.s3VideoKey, task.videoPath);
+    _s3Client->downloadFile(task.s3ImageKey, task.imagePath);
 
     LOG(INFO) << "downloaded: " << task.s3VideoKey << " and " << task.s3ImageKey;
 
     VideoProcessor processor;
-    processor.processVideo(videoPath, imagePath, noAudioOutputPath, thumbnailPath);
+    processor.processVideo(task);
 
     std::ostringstream command;
     command << "ffmpeg -i "
-            << noAudioOutputPath
+            << task.noAudioOutputPath
             << " -i "
-            << videoPath
+            << task.videoPath
             << " -c:v copy -c:a aac -strict experimental -shortest "
-            << outputPath;
+            << task.outputPath;
     system((char*)command.str().c_str());
 
-    LOG(INFO) << "process done, uploading to " << outputKey << "and " << thumbnailKey;
-    _s3Client->uploadFile(outputPath, outputKey);
-    _s3Client->uploadFile(thumbnailPath, thumbnailKey);
+    LOG(INFO) << "process done, uploading to " << task.outputKey << "and " << task.thumbnailKey;
+    _s3Client->uploadFile(task.outputPath, task.outputKey);
+    _s3Client->uploadFile(task.thumbnailPath, task.thumbnailKey);
 
     auto url = kAPIBasePath + std::to_string(task.videoID);
-    json j = {{"swapped_uid", outputKey}, {"thumbnail_uid", thumbnailKey}};
+    json j = {{"swapped_uid", task.outputKey}, {"thumbnail_uid", task.thumbnailKey}};
     LOG(INFO) << "posting result " << j.dump();
     RestClient::post(url, "application/json", j.dump());
 

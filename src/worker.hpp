@@ -1,3 +1,5 @@
+#pragma once
+
 #include <redox.hpp>
 #include <string>
 
@@ -10,7 +12,7 @@ public:
     Worker();
     void work();
 private:
-    void _processTask(const Task& task);
+    void _processTask(Task& task);
     redox::Redox *_rdx;
     S3::Client* _s3Client;
 };
