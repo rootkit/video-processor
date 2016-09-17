@@ -39,6 +39,7 @@ void FaceDetectorAndTracker::setInput(cv::VideoCapture* input)
 
 void FaceDetectorAndTracker::setDimension(const cv::Size& size)
 {
+    m_tracking = false;
     m_originalFrameSize.width = size.width;
     m_originalFrameSize.height = size.height;
 

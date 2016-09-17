@@ -1,7 +1,7 @@
 CXX=g++
 CPPFLAGS=-g -I$(HOME)/.libs/include
-LDFLAGS=-L$(HOME)/.libs/lib -Wl,-rpath=$(HOME)/.libs/lib
-LDLIBS=-ldlib -lcblas -llapack $(shell pkg-config --libs opencv)
+LDFLAGS=-L$(HOME)/.libs/lib -L$(HOME)/.libs/lib64 -Wl,-rpath=$(HOME)/.libs/lib:$(HOME)/.libs/lib64
+LDLIBS=-ldlib -lcblas -llapack -laws-cpp-sdk-core -laws-cpp-sdk-s3 -lhiredis -lev -lredox -lrestclient-cpp -lboost_system -lboost_filesystem $(shell pkg-config --libs opencv)
 
 SRCS=$(wildcard src/*.cpp)
 OBJS=$(subst .cpp,.o,$(SRCS))
