@@ -6,15 +6,10 @@
 #include <unistd.h>
 #include <boost/filesystem.hpp>
 
+#include "config.hpp"
+
 #include "helpers.hpp"
 #include "video_processor.hpp"
-
-namespace {
-    std::string kRedisHost   = "localhost";
-    std::string kQueueName   = "kappa";
-    std::string kS3Bucket    = "tatakau-kappa";
-    std::string kAPIBasePath = "https://tvar.claudetech.com/videos/";
-}
 
 using json = nlohmann::json;
 

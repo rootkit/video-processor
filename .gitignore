@@ -2,3 +2,4 @@ data
 face_swapper
 *.o
 *.log
+config.hpp
