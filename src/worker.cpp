@@ -31,23 +31,24 @@ void Worker::work()
 {
     LOG(INFO) << "starting to listen on queue " << kQueueName;
     while (true) {
-        try {
-            // block until we get something to do
-            auto &c = _rdx->commandSync<std::vector<std::string>>({"BRPOP", kQueueName, "0"});
-            if (c.ok()) {
-                // TODO: use another thread or process instead of blocking here
-                auto rawData = c.reply().back();
-                LOG(INFO) << "starting to process task: " << rawData;
-                auto task = Task::fromJSON(rawData);
+        // block until we get something to do
+        auto &c = _rdx->commandSync<std::vector<std::string>>({"BRPOP", kQueueName, "0"});
+        if (c.ok()) {
+            // TODO: use another thread or process instead of blocking here
+            auto rawData = c.reply().back();
+            LOG(INFO) << "starting to process task: " << rawData;
+            auto task = Task::fromJSON(rawData);
+            try {
                 this->_processTask(task);
-            } else {
-                // TODO: proper error handling, but anyway we should not enter here
-                LOG(ERROR) << "redis command failed";
-                usleep(1000);
+            } catch (std::exception &e) {
+                LOG(ERROR) << "could not process: " << e.what();
+                auto url = kAPIBasePath + std::to_string(task.videoID);
+                RestClient::del(url);
             }
-        } catch (std::exception &e) {
-            // TODO: notify the API
-            LOG(ERROR) << "could not process: " << e.what();
+        } else {
+            // TODO: proper error handling, but anyway we should not enter here
+            LOG(ERROR) << "redis command failed";
+            usleep(1000);
         }
     }
 }
