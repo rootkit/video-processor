@@ -42,6 +42,9 @@ void VideoProcessor::processVideo(const Task& task)
     _imageDetector->setDimension(scaledInputImage.size());
     _imageDetector->processFrame(scaledInputImage);
     std::vector<cv::Rect> imageFaces = _imageDetector->faces();
+    if (imageFaces.size() == 0) {
+        throw std::runtime_error("could not detect profile image");
+    }
 
     cv::VideoWriter outputVideo;
     auto size = cv::Size((int)videoInput->get(cv::CAP_PROP_FRAME_WIDTH),
