@@ -73,6 +73,8 @@ void VideoProcessor::processVideo(const Task& task)
             _swapper->swapFaces(frame, faces[0], scaledInputImage, imageFaces[0]);
         }
 
+        drawText(frame, cv::Point(frame.size().width - 310, frame.size().height - 30), "Created with TvAR");
+
         outputVideo << frame;
 
         currentIndex++;
