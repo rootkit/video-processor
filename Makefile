@@ -24,7 +24,7 @@ DLIB_URL         := http://dlib.net/files/$(DLIB_TARBALL)
 EASY_LOGGING_TARBALL_URL := https://github.com/easylogging/easyloggingpp/releases/download/9.84/easyloggingpp_v9.84.tar.gz
 
 CXX=g++
-CPPFLAGS=-g -I$(HOME)/.libs/include
+CPPFLAGS=-g -I$(HOME)/.libs/include -std=c++11
 LDFLAGS=-L$(HOME)/.libs/lib -L$(HOME)/.libs/lib64 -Wl,-rpath=$(HOME)/.libs/lib:$(HOME)/.libs/lib64
 LDLIBS=-ldlib -lcblas -llapack -laws-cpp-sdk-core -laws-cpp-sdk-s3 -lhiredis -lev -lredox -lrestclient-cpp -lboost_system -lboost_filesystem $(shell pkg-config --libs opencv)
 
