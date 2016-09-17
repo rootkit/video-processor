@@ -83,7 +83,7 @@ void Worker::_processTask(Task& task)
     auto url = kAPIBasePath + std::to_string(task.videoID);
     json j = {{"swapped_uid", task.outputKey}, {"thumbnail_uid", task.thumbnailKey}};
     LOG(INFO) << "posting result " << j.dump();
-    RestClient::post(url, "application/json", j.dump());
+    RestClient::put(url, "application/json", j.dump());
 
     LOG(DEBUG) << "cleaning up";
     boost::filesystem::remove_all(outputDir);
