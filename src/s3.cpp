@@ -57,6 +57,7 @@ namespace S3
         inputFile.open(filePath.c_str());
         auto requestStream = Aws::MakeShared<Aws::StringStream>("file-data");
         *requestStream << inputFile.rdbuf();
+        putObjectRequest.SetContentLength(inputFile.tellg());
         inputFile.close();
         putObjectRequest.SetBody(requestStream);
         auto putObjectOutcome = _client->PutObject(putObjectRequest);
