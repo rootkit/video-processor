@@ -78,8 +78,8 @@ void Worker::_processTask(Task& task)
     system((char*)command.str().c_str());
 
     LOG(INFO) << "process done, uploading to " << task.outputKey << "and " << task.thumbnailKey;
-    _s3Client->uploadFile(task.outputPath, task.outputKey);
-    _s3Client->uploadFile(task.thumbnailPath, task.thumbnailKey);
+    _s3Client->uploadFile(task.outputPath, task.outputKey, "video/mp4");
+    _s3Client->uploadFile(task.thumbnailPath, task.thumbnailKey, "image/jpeg");
 
     auto url = kAPIBasePath + std::to_string(task.videoID);
     json j = {{"swapped_uid", task.outputKey}, {"thumbnail_uid", task.thumbnailKey}};

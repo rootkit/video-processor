@@ -46,7 +46,7 @@ namespace S3
         outputFile.close();
     }
 
-    void Client::uploadFile(const std::string &filePath, const std::string &uploadKey)
+    void Client::uploadFile(const std::string &filePath, const std::string &uploadKey, const char* contentType)
     {
         Aws::S3::Model::PutObjectRequest putObjectRequest;
         putObjectRequest
@@ -58,6 +58,7 @@ namespace S3
         auto requestStream = Aws::MakeShared<Aws::StringStream>("file-data");
         *requestStream << inputFile.rdbuf();
         putObjectRequest.SetContentLength(inputFile.tellg());
+        putObjectRequest.SetContentType(contentType);
         inputFile.close();
         putObjectRequest.SetBody(requestStream);
         auto putObjectOutcome = _client->PutObject(putObjectRequest);

@@ -20,7 +20,7 @@ namespace S3
     public:
         Client(Config config);
 
-        void uploadFile(const std::string& filePath, const std::string& uploadKey);
+        void uploadFile(const std::string& filePath, const std::string& uploadKey, const char* contentType);
         void downloadFile(const std::string& key, const std::string& outputPath);
 
     private:
