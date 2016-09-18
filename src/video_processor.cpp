@@ -79,7 +79,9 @@ void VideoProcessor::processVideo(const Task& task)
             thumbnailCaptured = true;
         }
 
-        drawText(frame, cv::Point(frame.size().width - 310, frame.size().height - 30), "Created with TvAR");
+        if (!task.noAd) {
+            drawText(frame, cv::Point(frame.size().width - 310, frame.size().height - 30), "Created with TvAR");
+        }
 
         outputVideo << frame;
 
