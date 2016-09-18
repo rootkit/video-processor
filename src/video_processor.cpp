@@ -53,6 +53,7 @@ void VideoProcessor::processVideo(const Task& task)
     outputVideo.open(task.noAudioOutputPath, kFourcc, (int)videoInput->get(cv::CAP_PROP_FPS), size);
 
     int currentIndex = 0;
+    bool thumbnailCaptured = false;
 
     while (true) {
         // Grab a frame
@@ -64,13 +65,18 @@ void VideoProcessor::processVideo(const Task& task)
         }
         _detector->processFrame(frame);
 
-        if (currentIndex == 1 || currentIndex == 100) {
-            imwrite(task.thumbnailPath, frame);
-        }
-
         std::vector<cv::Rect> faces = _detector->faces();
+
         if (faces.size() > 0) {
             _swapper->swapFaces(frame, faces[0], scaledInputImage, imageFaces[0]);
+        }
+
+        if (currentIndex == 1) {
+            imwrite(task.thumbnailPath, frame);
+        }
+        if (currentIndex >= 100 && !thumbnailCaptured && faces.size() > 0) {
+            imwrite(task.thumbnailPath, frame);
+            thumbnailCaptured = true;
         }
 
         drawText(frame, cv::Point(frame.size().width - 310, frame.size().height - 30), "Created with TvAR");
